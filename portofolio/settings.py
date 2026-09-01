@@ -16,7 +16,6 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
