@@ -31,6 +31,8 @@ class Education(models.Model):
     degree = models.CharField(max_length=255)
     start_year = models.CharField(max_length=4)
     end_year = models.CharField(max_length=10)
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.school
