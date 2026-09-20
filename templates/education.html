@@ -9,7 +9,7 @@
                 <div class="project-header">
                     <h1>Education</h1>
                     <a href="{% url 'main:create_education' %}" class="button project-add-button">
-                        <span aria-hidden="true">+</span> Tambah Data
+                        <span aria-hidden="true">+</span> Tambah
                     </a>
                 </div>
 
@@ -23,12 +23,20 @@
                         <article class="experience-card">
                             <h2>{{ edu.school }}</h2>
                             <p class="experience-category">{{ edu.degree }}</p>
-                            <p class="experience-status" style="margin-top:0;">{{ edu.start_year }} - {{ edu.end_year }}</p>
+                            <p class="experience-status" style="margin-top:0;">
+                                {{ edu.start_year }} - {{ edu.end_year }} 
+                                {% if edu.is_active %}(Aktif){% endif %}
+                            </p>
                             {% if edu.description %}
                                 <p class="experience-description" style="margin-top: 0.5rem;">{{ edu.description }}</p>
                             {% endif %}
                             
-                            {% include "components/education_delete_modal.html" with edu=edu %}
+                            <div class="project-card-actions">
+                                <div class="project-actions">
+                                    <a href="{% url 'main:edit_education' edu.id %}" class="button">Edit</a>
+                                    {% include "components/education_delete_modal.html" with edu=edu %}
+                                </div>
+                            </div>
                         </article>
                     {% empty %}
                         {% if school_query %}

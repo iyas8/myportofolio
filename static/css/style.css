@@ -391,3 +391,29 @@ h1, .brand {
     .project-delete-modal__actions { flex-direction: column-reverse; }
     .project-delete-modal__actions .button { width: 100%; text-align: center; }
 }
+
+.project-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 1rem;
+}
+.project-actions .button {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.project-card-actions {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+}
+
+.form-group input[type="checkbox"] {
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    accent-color: var(--accent);
+}
