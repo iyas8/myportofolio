@@ -69,3 +69,19 @@ def delete_education(request, id):
         messages.success(request, "Pendidikan berhasil dihapus!")
         return redirect("main:show_education")
     return redirect("main:show_education")
+
+def edit_education(request, id):
+    education = get_object_or_404(Education, pk=id)
+
+    form = EducationForm(request.POST or None, instance=education)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Riwayat pendidikan berhasil diperbarui")
+        return redirect("main:show_education")
+
+    context = {
+        "name": "Muhammad Ilhami Yasya",
+        "form": form,
+    }
+    return render(request, "edit_education.html", context)
