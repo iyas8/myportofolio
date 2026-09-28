@@ -8,9 +8,11 @@
                 <p class="section-kicker">Riwayat Belajar</p>
                 <div class="project-header">
                     <h1>Education</h1>
-                    <a href="{% url 'main:create_education' %}" class="button project-add-button">
-                        <span aria-hidden="true">+</span> Tambah
-                    </a>
+                    {% if user.is_superuser %}
+                        <a href="{% url 'main:create_education' %}" class="button project-add-button">
+                            <span aria-hidden="true">+</span> Tambah
+                        </a>
+                    {% endif %}
                 </div>
 
                 <form method="get" action="{% url 'main:show_education' %}" class="project-search">
@@ -30,13 +32,17 @@
                             {% if edu.description %}
                                 <p class="experience-description" style="margin-top: 0.5rem;">{{ edu.description }}</p>
                             {% endif %}
-                            
+
+                            {% include "components/education_star.html" with edu=edu %}
+
+                            {% if user.is_superuser %}
                             <div class="project-card-actions">
                                 <div class="project-actions">
                                     <a href="{% url 'main:edit_education' edu.id %}" class="button">Edit</a>
                                     {% include "components/education_delete_modal.html" with edu=edu %}
                                 </div>
                             </div>
+                            {% endif %}
                         </article>
                     {% empty %}
                         {% if school_query %}
