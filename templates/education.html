@@ -8,13 +8,20 @@
                 <p class="section-kicker">Riwayat Belajar</p>
                 <div class="project-header">
                     <h1>Education</h1>
-                    {% if user.is_superuser %}
-                        <a href="{% url 'main:create_education' %}" class="button project-add-button">
-                            <span aria-hidden="true">+</span> Tambah
-                        </a>
+                    {% if user.is_superuser or is_editor %}
+                        <div class="project-card-actions">
+                            <div class="project-actions">
+                                <a href="{% url 'main:edit_education' edu.id %}" class="button">Edit</a>
+                                 {% if user.is_superuser %}
+                                    {% include "components/education_delete_modal.html" with edu=edu %}
+                                {% endif %}
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
-
+                {% for message in messages %}
+                    <p class="form-message">{{ message }}</p>
+                {% endfor %}
                 <form method="get" action="{% url 'main:show_education' %}" class="project-search">
                     <input type="search" name="school" value="{{ school_query }}" placeholder="Cari nama institusi..." class="project-search__input">
                     <button type="submit" class="button">Cari</button>

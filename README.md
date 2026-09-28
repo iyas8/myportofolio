@@ -1,15 +1,33 @@
 # Portfolio Website
 
 ## Deskripsi Proyek
-Proyek ini adalah sebuah website portofolio pribadi interaktif yang dibangun menggunakan framework web Django. Website ini dirancang untuk menampilkan profil, pengalaman, serta riwayat pendidikan secara dinamis menggunakan arsitektur Model-View-Template (MVT).
+Proyek ini adalah sebuah website portofolio pribadi interaktif yang dibangun menggunakan framework web Django. Website ini dirancang untuk menampilkan profil, pengalaman, serta riwayat pendidikan secara dinamis menggunakan arsitektur Model-View-Template (MVT). Website ini juga dilengkapi fitur registrasi, login, dan logout, serta pembatasan hak akses data riwayat pendidikan berdasarkan peran pengguna.
 
 ## Cara Menjalankan Proyek (Setup)
 1. Pastikan Python sudah terinstal di komputer.
 2. Buka terminal dan aktifkan *virtual environment* (misal di Windows: `env\Scripts\activate`).
 3. Instal semua dependensi dengan menjalankan: `pip install -r requirements.txt`.
 4. Terapkan migrasi database dengan perintah: `python manage.py migrate`.
-5. Jalankan server lokal dengan mengetik: `python manage.py runserver`.
-6. Buka `http://localhost:8000/` di browser.
+5. Buat akun pemilik portofolio (superuser) dengan perintah: `python manage.py createsuperuser`.
+6. Jalankan server lokal dengan mengetik: `python manage.py runserver`.
+7. Buka `http://localhost:8000/` di browser.
+8. Untuk mencoba peran Editor, buka `http://localhost:8000/admin/` dan login sebagai superuser. Buat *Group* baru bernama `Editor` (nama harus persis sama), lalu masukkan akun pengguna biasa ke grup tersebut lewat halaman Users.
+
+## Peran Pengguna
+- **Pengunjung (belum login):** dapat melihat data. Jika mencoba memberi star atau membuka halaman ubah data, akan diarahkan ke halaman login.
+- **Pengguna biasa:** dapat melihat data serta memberi atau membatalkan star. Tidak dapat menambah, mengubah, maupun menghapus data (HTTP 403).
+- **Editor:** memiliki hak pengguna biasa dan dapat mengubah data. Tidak dapat menambah atau menghapus data (HTTP 403).
+- **Pemilik portofolio (superuser):** dapat menambah, mengubah, dan menghapus data, serta memberi star.
+
+---
+
+### Tugas 4
+Tidak ada pertanyaan reflektif untuk pekan ini dihilangkan.
+
+### AI Disclosure
+Tool yang Digunakan: Gemini
+
+Konteks Penggunaan: Saya menggunakan AI untuk membantu menghubung rangka kerja logika otorisasi (role-based access control) antara Superuser dan Editor di file `views.py`. AI juga membantu saya memilih cara paling efisien untuk menyembunyikan elemen UI di *template* menggunakan *tags conditional* dari Django tanpa harus menulis ulang struktur HTML
 
 ---
 
