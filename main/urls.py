@@ -3,7 +3,7 @@ from django.urls import path
 from main.views import (
     show_main, show_experience, show_education,
     create_education, get_education_json, delete_education, edit_education,
-    register, login_user, logout_user, toggle_star,
+    register, login_user, logout_user, toggle_star, create_education_ajax
 )
 
 app_name = "main"
@@ -20,4 +20,5 @@ urlpatterns = [
     path("register/", register, name="register"),
     path("login/", login_user, name="login"),
     path("logout/", logout_user, name="logout"),
+    path("education/add-ajax/", create_education_ajax, name="create_education_ajax"),
 ]
