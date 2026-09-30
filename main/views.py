@@ -106,7 +106,8 @@ def delete_education(request, id):
 
 @login_required(login_url="/login/")
 def edit_education(request, id):
-    if not request.user.is_superuser:
+    is_editor = request.user.groups.filter(name="Editor").exists()
+    if not (request.user.is_superuser or is_editor):
         raise PermissionDenied
 
     education = get_object_or_404(Education, pk=id)
