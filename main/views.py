@@ -9,6 +9,8 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from main.models import Experience, Education
 from main.forms import EducationForm
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 def show_main(request):
     last_login = request.COOKIES.get('last_login', 'Belum ada sesi login / Cookie tidak ditemukan')
@@ -32,16 +34,14 @@ def show_experience(request):
     return render(request, "experience.html", context)
 
 def show_education(request):
-    json_response = get_education_json(request)
-    educations = serializers.deserialize("json", json_response.content.decode("utf-8"))
-    educations = [edu.object for edu in educations]
-    
     school_query = request.GET.get("school", "").strip()
+    is_editor = request.user.groups.filter(name="Editor").exists()
 
     context = {
         "name": "Muhammad Ilhami Yasya",
-        "education_list": educations,
         "school_query": school_query,
+        "is_editor": is_editor,
+        "form": EducationForm(),
     }
     return render(request, "education.html", context)
 
@@ -65,13 +65,32 @@ def create_education(request):
 
 def get_education_json(request):
     school_query = request.GET.get("school", "").strip()
-    educations = Education.objects.all()
+    educations = Education.objects.prefetch_related('starred_by').all()
 
     if school_query:
         educations = educations.filter(school__icontains=school_query)
 
-    educations_json = serializers.serialize("json", educations, use_natural_foreign_keys=True)
-    return HttpResponse(educations_json, content_type="application/json")
+    data = []
+    for edu in educations:
+        starred_users = edu.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(edu.id),
+            "fields": {
+                "school": edu.school,
+                "degree": edu.degree,
+                "start_year": edu.start_year,
+                "end_year": edu.end_year,
+                "description": edu.description,
+                "is_active": edu.is_active,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+    return JsonResponse(data, safe=False)
 
 @login_required(login_url="/login/")
 def delete_education(request, id):
@@ -150,3 +169,20 @@ def logout_user(request):
     response = redirect("main:show_main")
     response.delete_cookie('last_login')
     return response
+
+@require_POST
+def create_education_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan riwayat pendidikan."},
+            status=403,
+        )
+
+    form = EducationForm(request.POST)
+    if form.is_valid():
+        education = form.save()
+        return JsonResponse(
+            {"message": "Riwayat pendidikan berhasil ditambahkan.", "pk": str(education.id)},
+            status=201,
+        )
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)

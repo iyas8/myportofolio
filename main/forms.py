@@ -20,3 +20,18 @@ class EducationForm(ModelForm):
             "end_year": TextInput(attrs={"placeholder": "Contoh: 2029"}),
             "description": Textarea(attrs={"placeholder": "Ceritakan sedikit...", "rows": 3}),
         }
+
+    def clean_school(self):
+        school = strip_tags(self.cleaned_data["school"]).strip()
+        if not school:
+            raise ValidationError("Nama institusi tidak boleh hanya berisi tag HTML.")
+        return school
+
+    def clean_degree(self):
+        return strip_tags(self.cleaned_data["degree"]).strip()
+
+    def clean_description(self):
+        desc = self.cleaned_data.get("description", "")
+        if desc:
+            return strip_tags(desc).strip()
+        return ""
