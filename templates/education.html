@@ -48,6 +48,7 @@
         const BASE_EDUCATION_ENDPOINT = "{% url 'main:get_education_json' %}";
         const CREATE_EDUCATION_ENDPOINT = "{% url 'main:create_education_ajax' %}";
         const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
+        const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
 
         let educationsAbortController;
 
@@ -102,7 +103,7 @@
                 : '';
             const activeText = edu.is_active ? " (Aktif)" : "";
 
-            const editHtml = IS_SUPERUSER
+            const editHtml = (IS_SUPERUSER || IS_EDITOR)
                 ? `<a href="${editUrl}" class="button">Edit</a>`
                 : '';
 
