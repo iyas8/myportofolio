@@ -71,12 +71,13 @@ class EducationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education.html")
 
-    def test_education_page_shows_data(self):
-        response = self.client.get(reverse("main:show_education"))
+    def test_education_json_shows_data(self):
+        response = self.client.get(reverse("main:get_education_json"))
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.edu.school)
         self.assertContains(response, self.edu.degree)
 
-    def test_empty_education_page(self):
+    def test_empty_education_json(self):
         Education.objects.all().delete()
-        response = self.client.get(reverse("main:show_education"))
-        self.assertContains(response, "Belum ada riwayat pendidikan yang ditambahkan.")
+        response = self.client.get(reverse("main:get_education_json"))
+        self.assertEqual(response.json(), [])

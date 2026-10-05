@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.forms import ModelForm, TextInput, Textarea
+from django.utils.html import strip_tags
 from main.models import Education
 
 class EducationForm(ModelForm):
@@ -28,10 +30,10 @@ class EducationForm(ModelForm):
         return school
 
     def clean_degree(self):
-        return strip_tags(self.cleaned_data["degree"]).strip()
+        degree = strip_tags(self.cleaned_data["degree"]).strip()
+        if not degree:
+            raise ValidationError("Gelar atau jurusan tidak boleh hanya berisi tag HTML.")
+        return degree
 
     def clean_description(self):
-        desc = self.cleaned_data.get("description", "")
-        if desc:
-            return strip_tags(desc).strip()
-        return ""
+        return strip_tags(self.cleaned_data["description"]).strip()
