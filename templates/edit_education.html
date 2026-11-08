@@ -6,8 +6,15 @@
         <section class="experience-section">
             <div class="container">
                 <h1>Ubah Riwayat Pendidikan</h1>
-                <form method="post" class="project-form">
+
+                <form
+                    id="edit-education-form"
+                    method="post"
+                    class="project-form"
+                    data-api-url="{% url 'api:education-detail' form.instance.pk %}"
+                >
                     {% csrf_token %}
+
                     {% for field in form %}
                         <div class="form-group">
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -17,10 +24,99 @@
                             {% endfor %}
                         </div>
                     {% endfor %}
-                    <button type="submit" class="button">Simpan Perubahan</button>
-                    <a href="{% url 'main:show_education' %}" class="button button-secondary">Batal</a>
+
+                    <button type="submit" class="button" id="save-education-button">
+                        Simpan Perubahan
+                    </button>
+                    <a href="{% url 'main:show_education' %}" class="button button-secondary">
+                        Kembali
+                    </a>
                 </form>
             </div>
         </section>
     </main>
+
+    <script>
+        const editEducationForm = document.getElementById("edit-education-form");
+        const saveEducationButton = document.getElementById("save-education-button");
+
+        function getCookie(name) {
+            const prefix = name + "=";
+            const cookie = document.cookie
+                .split(";")
+                .map(value => value.trim())
+                .find(value => value.startsWith(prefix));
+
+            return cookie
+                ? decodeURIComponent(cookie.substring(prefix.length))
+                : null;
+        }
+
+        function getApiErrorMessage(data, status) {
+            if (data.detail) {
+                return data.detail;
+            }
+
+            const messages = Object.values(data)
+                .flat()
+                .map(value => String(value));
+
+            return messages.join(" ") || `Request gagal (HTTP ${status}).`;
+        }
+
+        editEducationForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+            saveEducationButton.disabled = true;
+
+            try {
+                const csrfToken = getCookie("csrftoken");
+
+                if (!csrfToken) {
+                    throw new Error("Token CSRF tidak ditemukan. Muat ulang halaman.");
+                }
+
+                const fields = new FormData(editEducationForm);
+
+                const payload = {
+                    school: fields.get("school"),
+                    degree: fields.get("degree"),
+                    start_year: fields.get("start_year"),
+                    end_year: fields.get("end_year"),
+                    description: fields.get("description"),
+                    is_active: fields.has("is_active")
+                };
+
+                const response = await fetch(editEducationForm.dataset.apiUrl, {
+                    method: "PATCH",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    throw new Error(getApiErrorMessage(data, response.status));
+                }
+
+                showToast(
+                    "Berhasil",
+                    "Riwayat pendidikan berhasil diperbarui.",
+                    "success"
+                );
+
+            } catch (error) {
+                showToast(
+                    "Gagal menyimpan perubahan",
+                    error.message,
+                    "error"
+                );
+            } finally {
+                saveEducationButton.disabled = false;
+            }
+        });
+    </script>
 {% endblock content %}

@@ -21,6 +21,24 @@ Proyek ini adalah sebuah website portofolio pribadi interaktif yang dibangun men
 
 ---
 
+### Tugas 6
+
+1. REST adalah gaya arsitektur untuk membuat API dengan resource yang memiliki URL dan method HTTP yang digunakan secara konsisten. JSON hanya format data. Jadi, API yang mengirim JSON belum tentu RESTful apabila URL dan method HTTP tidak digunakan sesuai fungsinya, atau request masih bergantung pada keadaan request sebelumnya. Contohnya, GET digunakan untuk membaca data, POST untuk membuat data, PUT untuk mengganti seluruh data, dan PATCH untuk mengubah sebagian data.
+
+2. Serializer pada Django REST Framework mengubah objek model menjadi data yang dapat dikirim sebagai JSON. Serializer juga memeriksa dan memvalidasi data dari request sebelum disimpan. Dibandingkan merakit dictionary sendiri dengan `JsonResponse`, `ModelSerializer` lebih ringkas karena field model dan validasinya ditentukan dalam satu tempat.
+
+3. Authentication digunakan untuk mengetahui siapa pengguna yang mengirim request. Authorization menentukan tindakan apa yang boleh dilakukan pengguna tersebut. Hak akses harus diperiksa di server menggunakan permission class karena tombol yang disembunyikan di template hanya mengatur tampilan. Pengguna masih dapat mengirim request langsung ke endpoint API.
+
+4. SessionAuthentication menggunakan session cookie untuk mengenali pengguna. Browser dapat mengirim cookie tersebut secara otomatis, termasuk pada request yang dipicu dari situs lain. Token CSRF membantu memastikan request yang mengubah data berasal dari halaman aplikasi yang benar. `force_authenticate` hanya memasang user secara langsung untuk pengujian permission. Cara tersebut melewati proses login session dan pemeriksaan CSRF, sehingga tidak dapat membuktikan bahwa perlindungan CSRF berjalan.
+
+### AI Disclosure
+
+Tool yang digunakan: ChatGPT
+
+Konteks Penggunaan: Saya menggunakan AI untuk membantu mengeksplor implementasi Django REST Framework pada bagian Education, terutama penggunaan serializer dan permission, juga membantu saya mengintegrasikan fitur ubah data Education menggunakan Fetch API dengan method PATCH, meninjau pengujian permission dan CSRF
+
+---
+
 ### Tugas 5
 
 1. Debouncing adalah teknik untuk menunda eksekusi sebuah fungsi sampai ada jeda waktu tertentu tanpa event baru. Pada fitur pencarian di halaman Education, setiap kali user mengetik, timer sebelumnya dibatalkan pakai `clearTimeout` lalu dibuat lagi pakai `setTimeout` (300 ms), jadi request ke server baru dikirim setelah user berhenti mengetik sebentar. Teknik ini penting karena tanpa debouncing, mengetik kata "Universitas" yang terdiri dari 11 huruf akan mengirim 11 request berturut-turut ke server. Hal ini membebani server dan database, memboroskan bandwidth, dan membuat tampilan daftar berkedip karena di-render ulang terus. Selain itu, respons dari request lama bisa saja tiba belakangan dan menimpa hasil pencarian yang paling baru
