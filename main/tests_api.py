@@ -4,6 +4,7 @@ from django.contrib.auth.models import Group, User
 from django.urls import reverse
 
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient, APITestCase
 
 from main.models import Education
@@ -111,36 +112,29 @@ class EducationAPITest(APITestCase):
                 self.payload,
                 format="json",
             )
-            self.assertEqual(
-                response.status_code,
-                status.HTTP_403_FORBIDDEN,
+            expected_status = (
+                status.HTTP_401_UNAUTHORIZED
+                if user is None
+                else status.HTTP_403_FORBIDDEN
             )
+            self.assertEqual(response.status_code, expected_status)
 
             response = self.client.patch(
                 self.detail_url,
                 {"school": "Changed"},
                 format="json",
             )
-            self.assertEqual(
-                response.status_code,
-                status.HTTP_403_FORBIDDEN,
-            )
+            self.assertEqual(response.status_code, expected_status)
 
             response = self.client.put(
                 self.detail_url,
                 self.payload,
                 format="json",
             )
-            self.assertEqual(
-                response.status_code,
-                status.HTTP_403_FORBIDDEN,
-            )
+            self.assertEqual(response.status_code, expected_status)
 
             response = self.client.delete(self.detail_url)
-            self.assertEqual(
-                response.status_code,
-                status.HTTP_403_FORBIDDEN,
-            )
+            self.assertEqual(response.status_code, expected_status)
 
             self.assertEqual(Education.objects.count(), 1)
             self.education.refresh_from_db()
@@ -247,7 +241,7 @@ class EducationAPITest(APITestCase):
         response = self.client.post(self.star_url)
         self.assertEqual(
             response.status_code,
-            status.HTTP_403_FORBIDDEN,
+            status.HTTP_401_UNAUTHORIZED,
         )
 
         self.client.force_authenticate(user=self.visitor)
@@ -386,3 +380,53 @@ class EducationAPITest(APITestCase):
             response.status_code,
             status.HTTP_201_CREATED,
         )
+
+
+class EducationTokenAPITest(APITestCase):
+    def setUp(self):
+        self.owner = User.objects.create_superuser(
+            username="owner",
+            password="test-password",
+            email="owner@example.com",
+        )
+        self.token_url = reverse("api:api_token_auth")
+        self.logout_url = reverse("api:api_logout")
+        self.education_url = reverse("api:education-list")
+        self.payload = {
+            "school": "Universitas Indonesia",
+            "degree": "S1 Ilmu Komputer",
+            "start_year": "2025",
+            "end_year": "2029",
+            "description": "Pendidikan tinggi",
+            "is_active": True,
+        }
+
+    def test_token_login_create_and_logout(self):
+        response = self.client.post(
+            self.token_url,
+            {"username": "owner", "password": "test-password"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        token_key = response.data["token"]
+
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f"Token {token_key}")
+
+        response = client.post(
+            self.education_url,
+            self.payload,
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = client.post(self.logout_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Token.objects.filter(key=token_key).exists())
+
+        response = client.post(
+            self.education_url,
+            self.payload,
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
